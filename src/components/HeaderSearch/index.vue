@@ -47,7 +47,7 @@ export default class extends Vue {
   private show = false
   private options: RouteConfig[] = []
   private searchPool: RouteConfig[] = []
-  private fuse?: Fuse<RouteConfig, Fuse.IFuseOptions<RouteConfig>>
+  private fuse?: Fuse<RouteConfig>
 
   get routes() {
     return PermissionModule.routes
@@ -99,7 +99,9 @@ export default class extends Vue {
   }
 
   private change(route: RouteConfig) {
-    this.$router.push(route.path)
+    this.$router.push(route.path).catch(err => {
+      console.warn(err)
+    })
     this.search = ''
     this.options = []
     this.$nextTick(() => {
@@ -113,7 +115,6 @@ export default class extends Vue {
       threshold: 0.4,
       location: 0,
       distance: 100,
-      maxPatternLength: 32,
       minMatchCharLength: 1,
       keys: [{
         name: 'title',

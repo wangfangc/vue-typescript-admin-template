@@ -24,7 +24,7 @@ module.exports = {
       // change xxx-api/login => /mock-api/v1/login
       // detail: https://cli.vuejs.org/config/#devserver-proxy
       [process.env.VUE_APP_BASE_API]: {
-        target: `http://localhost:${mockServerPort}/mock-api/v1`,
+        target: `http://127.0.0.1:${mockServerPort}/mock-api/v1`,
         changeOrigin: true, // needed for virtual hosted sites
         ws: true, // proxy websockets
         pathRewrite: {
@@ -50,9 +50,27 @@ module.exports = {
     }
   },
   chainWebpack(config) {
-    // provide the app's title in webpack's name field, so that
+    // provide the app's title in html-webpack-plugin's options list so that
     // it can be accessed in index.html to inject the correct title.
-    config.set('name', name)
+    // https://cli.vuejs.org/guide/webpack.html#modifying-options-of-a-plugin
+    config.plugin('html').tap(args => {
+      args[0].title = name
+      return args
+    })
+
+    // it can improve the speed of the first screen, it is recommended to turn on preload
+    config.plugin('preload').tap(() => [
+      {
+        rel: 'preload',
+        // to ignore runtime.js
+        // https://github.com/vuejs/vue-cli/blob/dev/packages/@vue/cli-service/lib/config/app.js#L171
+        fileBlacklist: [/\.map$/, /hot-update\.js$/, /runtime\..*\.js$/],
+        include: 'initial'
+      }
+    ])
+
+    // when there are many pages, it will cause too many meaningless requests
+    config.plugins.delete('prefetch')
 
     // https://webpack.js.org/configuration/devtool/#development
     // Change development env source map if you want.
@@ -89,6 +107,7 @@ module.exports = {
                 }
               }
             })
+          // https://webpack.js.org/configuration/optimization/#optimizationruntimechunk
           config.optimization.runtimeChunk('single')
         }
       )

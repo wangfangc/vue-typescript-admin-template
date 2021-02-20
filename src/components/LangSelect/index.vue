@@ -41,6 +41,12 @@
       >
         한국어
       </el-dropdown-item>
+      <el-dropdown-item
+        :disabled="language==='it'"
+        command="it"
+      >
+        Italiano
+      </el-dropdown-item>
     </el-dropdown-menu>
   </el-dropdown>
 </template>
@@ -48,7 +54,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { AppModule } from '@/store/modules/app'
-
+import settings from '../../settings'
 @Component({
   name: 'Login'
 })
@@ -60,8 +66,11 @@ export default class extends Vue {
   private handleSetLanguage(lang: string) {
     this.$i18n.locale = lang
     AppModule.SetLanguage(lang)
+    document.documentElement.lang = lang
+    const title = this.$route.meta.title ? `${this.$t(`route.${this.$route.meta.title}`)} - ${settings.title}` : `${settings.title}`
+    document.title = title
     this.$message({
-      message: 'Switch Language Success',
+      message: this.$t('components.changeLanguageTips').toString(),
       type: 'success'
     })
   }

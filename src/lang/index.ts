@@ -16,6 +16,7 @@ import zhLocale from './zh'
 import esLocale from './es'
 import jaLocale from './ja'
 import koLocale from './ko'
+import itLocale from './it'
 
 Vue.use(VueI18n)
 
@@ -39,12 +40,16 @@ const messages = {
   ko: {
     ...koLocale,
     ...elementKoLocale
+  },
+  it: {
+    ...itLocale
   }
 }
 
 export const getLocale = () => {
   const cookieLanguage = getLanguage()
   if (cookieLanguage) {
+    document.documentElement.lang = cookieLanguage
     return cookieLanguage
   }
 
@@ -52,6 +57,7 @@ export const getLocale = () => {
   const locales = Object.keys(messages)
   for (const locale of locales) {
     if (language.indexOf(locale) > -1) {
+      document.documentElement.lang = locale
       return locale
     }
   }
